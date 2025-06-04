@@ -1,5 +1,7 @@
 package raisetech.student.management;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,21 +15,38 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class Application {
 
-	@Autowired
-	private  StudentRepository repository;
+	private Map<String, String> student = new HashMap<>();
 
-	private String name = "Enami Kouji";
-
+	public Application() {
+		student.put("name", "Enami Kouji");
+		student.put("age", "37");
+	}
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
-   @GetMapping("/name")
-	 public String getName(){
-		return name;
-	 }
 
-	 @PostMapping("/name")
-		public void setName(String name){
-		this.name = name;
-	 }
+	// 現在の学生情報を取得
+	@GetMapping("/studentInfo")
+	public String getStudentInfo() {
+		return student.get("name") + " " + student.get("age") + "歳";
+	}
+
+	// 学生情報の設定
+	@PostMapping("/studentInfo")
+	public void setStudentInfo(@RequestParam String name, @RequestParam String age) {
+		student.put("name", name);
+		student.put("age", age);
+	}
+
+	// 名前を更新する
+	@PostMapping("/updateStudentName")
+	public void updateStudentName(@RequestParam String name) {
+		student.put("name", name);
+	}
+
+	// 学生情報の一覧を取得
+	@GetMapping("/list")
+	public Map<String, String> getStudentList() {
+		return student;
+	}
 }
