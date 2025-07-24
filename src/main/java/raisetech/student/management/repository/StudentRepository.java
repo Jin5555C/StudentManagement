@@ -4,7 +4,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import raisetech.student.management.data.Student;
-import raisetech.student.management.data.StudentCourse;
+import raisetech.student.management.data.StudentCourses;
 
 /**
  * 受講生情報を扱うレポジトリ
@@ -22,7 +22,7 @@ public interface StudentRepository {
   List<Student> searchStudentList();
 
   @Select("SELECT * FROM students_courses")
-  List<StudentCourse> searchStudentCourses();
+  List<StudentCourses> searchStudentCourses();
 
 }
 
