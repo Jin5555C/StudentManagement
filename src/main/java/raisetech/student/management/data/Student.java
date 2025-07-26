@@ -7,13 +7,13 @@ import lombok.Setter;
 @Setter
 public class Student {
 
-  private int id;
+  private Integer id;
   private String name;
   private String kanaName;
   private String nickname;
   private String email;
   private String area;
-  private int age;
+  private Integer age;
   private String sex;
   private String remark;
   private boolean isDeleted;
