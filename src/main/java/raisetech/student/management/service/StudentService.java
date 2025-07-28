@@ -24,8 +24,15 @@ public class StudentService {
   }
 
   public List<StudentCourses> searchStudentCourseList() {
-    //絞り込み検索で「Javaコース」のコース情報のみを抽出する。
-    //抽出したリストをコントローラーに返す。
     return repository.searchStudentCourses();
+  }
+
+
+  public void insertStudent(Student student){
+    repository.insertStudent(student);
+  }
+
+  public void insertStudentCourse(StudentCourses studentCourse){
+    repository.insertStudentCourse(studentCourse);
   }
 }
