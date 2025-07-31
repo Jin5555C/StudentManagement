@@ -18,12 +18,16 @@
       <th>年齢</th>
       <th>性別</th>
       <th>備考</th>
+      <th>受講コース名</th>
+      <th>キャンセル</th>
     </tr>
   </thead>
   <tbody>
   <tr th:each="studentDetail: ${studentList}">
     <td th:text="${studentDetail.student.id}"></td>
-    <td th:text="${studentDetail.student.name}"></td>
+    <td>
+      <a href="/studentList" th:href="@{/student/{id}(id=${studentDetail.student.id})}" th:text="${studentDetail.student.name}" ></a>
+    </td>
     <td th:text="${studentDetail.student.kanaName}"></td>
     <td th:text="${studentDetail.student.nickname}"></td>
     <td th:text="${studentDetail.student.email}"></td>
@@ -35,6 +39,9 @@
       <ul>
         <li th:each="course: ${studentDetail.studentCourses}" th:text="${course.courseName}"></li>
       </ul>
+    </td>
+    <td>
+      <input type="checkbox" th:field="${studentDetail.student.isDeleted}" />
     </td>
   </tr>
   </tbody>
