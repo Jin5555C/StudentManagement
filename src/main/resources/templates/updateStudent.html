@@ -77,6 +77,10 @@
       <label for="remark">備考：</label>
       <input class="form-control" type="text" id="remark" th:field="*{student.remark}"  />
     </div>
+    <div>
+      <label for="isDeleted">キャンセル：</label>
+      <input class="form-control" type="checkbox" id="isDeleted" th:field="*{student.deleted}"  />
+    </div>
     <div id="course-list">
       <div th:each="course, stat : *{studentCourses}">
         <div class="form-row">
