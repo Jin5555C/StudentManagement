@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import raisetech.student.management.data.Student;
-import raisetech.student.management.data.StudentCourses;
+import raisetech.student.management.data.StudentCourse;
 import raisetech.student.management.repository.StudentRepository;
 
 @SpringBootApplication
@@ -27,7 +27,7 @@ public class Application {
 	}
 
 	@GetMapping("/students_courses")
-	public List<StudentCourses> getStudentCourseList() {
-		return repository.searchStudentsCoursesList();
+	public List<StudentCourse> getStudentCourseList() {
+		return repository.searchStudentCourseList();
 	}
 }
