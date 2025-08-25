@@ -42,10 +42,17 @@ public class GlobalExceptionHandler {
     ErrorResponse error = new ErrorResponse(
         HttpStatus.INTERNAL_SERVER_ERROR.value(),
         HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-        "予期せぬエラーが発生しました"
+        "予期せぬエラーが発生しました: " + ex.getMessage() // ← 例外内容を追加
     );
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+
+    // サーバー側のログにスタックトレースを出力（必須）
+    ex.printStackTrace();
+
+    return ResponseEntity
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(error);
   }
+
 
 
 
