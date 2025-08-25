@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import raisetech.student.management.data.Student;
-import raisetech.student.management.data.StudentCourses;
+import raisetech.student.management.data.StudentCourse;
 import raisetech.student.management.domain.StudentDetail;
 
 /*
@@ -22,16 +22,16 @@ public class StudentConverter {
   * @param StudentCourses 受講生コース情報のリスト
   * @return 受講生詳細情報のリスト
   * */
-  public List<StudentDetail> convertStudentDetails(List<Student> students, List<StudentCourses> studentCourses) {
+  public List<StudentDetail> convertStudentDetails(List<Student> students, List<StudentCourse> studentCours) {
     List<StudentDetail> studentDetails = new ArrayList<>();
     students.forEach(student -> {
       StudentDetail studentDetail = new StudentDetail();
       studentDetail.setStudent(student);
 
-      List<StudentCourses> convertStudentCourses = studentCourses.stream()
+      List<StudentCourse> convertStudentCours = studentCours.stream()
           .filter(studentCourse -> student.getId().equals(studentCourse.getStudentId()))
           .collect(Collectors.toList());
-      studentDetail.setStudentCourses(convertStudentCourses);
+      studentDetail.setStudentCourseList(convertStudentCours);
       studentDetails.add(studentDetail);
     });
     return studentDetails;
