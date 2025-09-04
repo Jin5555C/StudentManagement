@@ -47,8 +47,11 @@ public class StudentService {
 * */
   public StudentDetail searchStudent(Integer id) {
     Student student = repository.searchStudent(id);
-    List<StudentCourse> studentCours = repository.searchStudentCourse(student.getId());
-    return new StudentDetail(student, studentCours);
+    if (student == null){
+      return null;
+    }
+    List<StudentCourse> studentCourses = repository.searchStudentCourse(student.getId());
+    return new StudentDetail(student, studentCourses);
   }
 
   /**
