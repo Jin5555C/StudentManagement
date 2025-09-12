@@ -7,12 +7,16 @@ public class ErrorResponse {
   private int status;
   private String error;
   private String message;
+  private String transactionId;
+  private String errorCode;
 
-  public ErrorResponse(int status, String error, String message) {
+  public ErrorResponse(int status, String error, String message, String transactionId, String errorCode) {
     this.timestamp = LocalDateTime.now();
     this.status = status;
     this.error = error;
     this.message = message;
+    this.transactionId = transactionId;
+    this.errorCode = errorCode;
   }
 
   public LocalDateTime getTimestamp() {
@@ -29,5 +33,13 @@ public class ErrorResponse {
 
   public String getMessage() {
     return message;
+  }
+
+  public String getTransactionId() {
+    return transactionId;
+  }
+
+  public String getErrorCode() {
+    return errorCode;
   }
 }
