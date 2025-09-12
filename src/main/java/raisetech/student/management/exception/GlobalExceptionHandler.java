@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
     ErrorResponse error = new ErrorResponse(
         HttpStatus.NOT_FOUND.value(),
         HttpStatus.NOT_FOUND.getReasonPhrase(),
-        ex.getMessage(),
+        "リクエストの処理に失敗しました。",
         transactionId,
         errorCode
     );
@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
     ErrorResponse error = new ErrorResponse(
         HttpStatus.BAD_REQUEST.value(),
         HttpStatus.BAD_REQUEST.getReasonPhrase(),
-        message,
+        "リクエストの処理に失敗しました。",
         transactionId,
         errorCode
     );
