@@ -50,8 +50,8 @@ public class StudentService {
     if (student == null){
       return null;
     }
-    List<StudentCourse> studentCourses = repository.searchStudentCourse(student.getId());
-    return new StudentDetail(student, studentCourses);
+    List<StudentCourse> studentCourseList = repository.searchStudentCourse(student.getId());
+    return new StudentDetail(student, studentCourseList);
   }
 
   /**
