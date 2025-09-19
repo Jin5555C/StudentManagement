@@ -1,5 +1,6 @@
 package raisetech.student.management.controller;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -8,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import raisetech.student.management.data.Student;
 import raisetech.student.management.domain.StudentDetail;
 import raisetech.student.management.service.StudentService;
+
 
 @WebMvcTest(StudentController.class)
 class StudentControllerTest {
@@ -129,8 +132,9 @@ class StudentControllerTest {
     mockMvc.perform(post("/registerStudent")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studentDetail)))
-        .andExpect(status().isBadRequest()); // バリデーションエラーなので 400 Bad Request を期待
-
+        .andExpect(status().isBadRequest()) // バリデーションエラーなので 400 Bad Request を期待
+        .andExpect(jsonPath("$.details[0].field", is("student.id")))
+        .andExpect(jsonPath("$.details[0].message", is("IDは指定できません。")));
     // Verify: バリデーションで弾かれるので、Serviceのメソッドは呼ばれないはず
     verify(service, times(0)).registerStudent(any(StudentDetail.class));
   }
@@ -152,7 +156,9 @@ class StudentControllerTest {
     mockMvc.perform(post("/registerStudent")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studentDetail)))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.details[0].field", is("student.name")))
+        .andExpect(jsonPath("$.details[0].message", is("入力必須の項目です。入力して下さい")));
 
     // Verify
     verify(service, times(0)).registerStudent(any(StudentDetail.class));
@@ -175,7 +181,10 @@ class StudentControllerTest {
     mockMvc.perform(put("/updateStudent")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(studentDetail)))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.errorCode", is("ERR-400")))
+        .andExpect(jsonPath("$.details[0].field", is("student.id")))
+        .andExpect(jsonPath("$.details[0].message", is("IDを指定してください。")));
 
     // Verify: Serviceのメソッドは呼ばれない
     verify(service, times(0)).updateStudent(any(StudentDetail.class));

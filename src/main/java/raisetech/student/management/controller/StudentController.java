@@ -21,7 +21,6 @@ import raisetech.student.management.validation.UpdateValidationGroup;
  * 受講生の検索や登録、更新などを置こうなREST　APIを受け付ける実行されるControllerです。
  */
 
-@Validated
 @RestController
 public class StudentController {
 

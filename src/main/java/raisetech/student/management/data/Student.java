@@ -22,15 +22,20 @@ public class Student {
   private Integer id;
 
   // 登録・更新の両方で必須
-  @NotBlank(groups = {CreateValidationGroup.class, UpdateValidationGroup.class})
+  @NotBlank(groups = {CreateValidationGroup.class,
+      UpdateValidationGroup.class}, message = "入力必須の項目です。入力して下さい")
   private String name;
 
-  @NotBlank(groups = {CreateValidationGroup.class, UpdateValidationGroup.class})
+  // 登録・更新の両方で必須
+  @NotBlank(groups = {CreateValidationGroup.class,
+      UpdateValidationGroup.class}, message = "入力必須の項目です。入力して下さい")
   private String kanaName;
 
   private String nickname;
 
-  @NotBlank(groups = {CreateValidationGroup.class, UpdateValidationGroup.class})
+  // 登録・更新の両方で必須
+  @NotBlank(groups = {CreateValidationGroup.class,
+      UpdateValidationGroup.class}, message = "入力必須の項目です。入力して下さい")
   @Email(groups = {CreateValidationGroup.class, UpdateValidationGroup.class})
   private String email;
 
