@@ -1,13 +1,13 @@
 package raisetech.student.management.exception;
 
+import java.util.List;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.util.UUID;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -45,14 +45,20 @@ public class GlobalExceptionHandler {
         .map(err -> err.getField() + ": " + err.getDefaultMessage())
         .reduce("", (s1, s2) -> s1 + s2 + "; ");
 
-    logger.info("[{}] Validation failed: {}", transactionId, message, ex);
+    logger.info("[{}] Validation failed: {}", transactionId, message);
+
+    List<ErrorResponse.FieldErrorDetail> details = ex.getBindingResult().getFieldErrors()
+        .stream()
+        .map(err -> new ErrorResponse.FieldErrorDetail(err.getField(), err.getDefaultMessage()))
+        .toList();
 
     ErrorResponse error = new ErrorResponse(
         HttpStatus.BAD_REQUEST.value(),
         HttpStatus.BAD_REQUEST.getReasonPhrase(),
-        "リクエストの処理に失敗しました。",
+        "入力内容に誤りがあります。",
         transactionId,
-        errorCode
+        errorCode,
+        details
     );
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
   }

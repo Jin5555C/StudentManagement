@@ -1,6 +1,5 @@
 package raisetech.student.management.controller;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 import raisetech.student.management.domain.StudentDetail;
 import raisetech.student.management.exception.ResourceNotFoundException;
 import raisetech.student.management.service.StudentService;
+import raisetech.student.management.validation.CreateValidationGroup;
+import raisetech.student.management.validation.UpdateValidationGroup;
 
 /**
-* 受講生の検索や登録、更新などを置こうなREST　APIを受け付ける実行されるControllerです。
+ * 受講生の検索や登録、更新などを置こうなREST　APIを受け付ける実行されるControllerです。
  */
 
-@Validated
 @RestController
 public class StudentController {
 
@@ -33,22 +33,21 @@ public class StudentController {
   }
 
 
-  /** 受講生詳細一覧検索。
-  * 全件検索を行うので、条件指定は行いません。*
-  * ＠return 受講生詳細一覧（全件）
-  * */
+  /**
+   * 受講生詳細一覧検索。 全件検索を行うので、条件指定は行いません。* ＠return 受講生詳細一覧（全件）
+   */
   @GetMapping("/studentList")
   public List<StudentDetail> getStudentList() {
-    return service.searchStudentList() ;
+    return service.searchStudentList();
   }
-  /** 受講生詳細の検索。
-   * IDに基づく任意の受講生情報取得を行います。
+
+  /**
+   * 受講生詳細の検索。 IDに基づく任意の受講生情報取得を行います。
    *
-   * @param id 受講生ID
-   * ＠return 受講生
-   * */
+   * @param id 受講生ID ＠return 受講生
+   */
   @GetMapping("/student/{id}")
-  public StudentDetail getStudent(@PathVariable @NotNull Integer id){
+  public StudentDetail getStudent(@PathVariable @NotNull Integer id) {
     StudentDetail student = service.searchStudent(id);
     if (student == null) {
       throw new ResourceNotFoundException("指定されたIDの受講生が見つかりません: " + id);
@@ -58,23 +57,29 @@ public class StudentController {
 
   /**
    * 受講生詳細の登録。
+   *
    * @ param studentDetail 受講生詳細
    * @ return　実行結果
    */
   @PostMapping("/registerStudent")
-  public ResponseEntity<StudentDetail> registerStudent(@RequestBody @Valid StudentDetail studentDetail){
+  public ResponseEntity<StudentDetail> registerStudent(
+      @RequestBody @Validated(CreateValidationGroup.class)
+      StudentDetail studentDetail) {
     StudentDetail responseStudentDetail = service.registerStudent(studentDetail);
     return ResponseEntity.ok(responseStudentDetail);
   }
 
   /**
    * 受講生詳細の更新を行います。キャンセルフラグの更新もここで行います（理論削除）
+   *
    * @ param studentDetail　受講生詳細
    * @ return　実行結果
    */
   @PutMapping("/updateStudent")
-  public ResponseEntity<String> updateStudent(@RequestBody StudentDetail studentDetail){
+  public ResponseEntity<String> updateStudent(
+      @RequestBody @Validated(UpdateValidationGroup.class)
+      StudentDetail studentDetail) {
     service.updateStudent(studentDetail);
-    return ResponseEntity.ok("更新処理が成功しました。");
+    return ResponseEntity.ok("success updating");
   }
 }
