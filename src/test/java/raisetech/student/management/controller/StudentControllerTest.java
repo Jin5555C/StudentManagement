@@ -18,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import raisetech.student.management.data.Student;
 import raisetech.student.management.domain.StudentDetail;
 import raisetech.student.management.service.StudentService;
 
@@ -106,6 +107,100 @@ class StudentControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().string("success updating"));
 
+    verify(service, times(1)).updateStudent(any(StudentDetail.class));
+  }
+
+  // ++++++++++++++ ここからバリデーションのテスト ++++++++++++++
+
+  @Test
+  void registerStudent_shouldReturnBadRequest_whenIdIsProvided() throws Exception {
+    // Arrange: IDを含む受講生オブジェクトを作成
+    Student student = new Student();
+    student.setId(99); // @Null(groups = CreateValidationGroup.class) に違反
+    student.setName("テスト太郎");
+    student.setKanaName("テストタロウ");
+    student.setEmail("test@example.com");
+
+    StudentDetail studentDetail = new StudentDetail();
+    studentDetail.setStudent(student);
+    studentDetail.setStudentCourseList(Collections.emptyList());
+
+    // Act & Assert
+    mockMvc.perform(post("/registerStudent")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(studentDetail)))
+        .andExpect(status().isBadRequest()); // バリデーションエラーなので 400 Bad Request を期待
+
+    // Verify: バリデーションで弾かれるので、Serviceのメソッドは呼ばれないはず
+    verify(service, times(0)).registerStudent(any(StudentDetail.class));
+  }
+
+  @Test
+  void registerStudent_shouldReturnBadRequest_whenNameIsNull() throws Exception {
+    // Arrange: 必須項目であるnameがnullの受講生オブジェクトを作成
+    Student student = new Student();
+    student.setId(null);
+    student.setName(null); // @NotBlank(groups = CreateValidationGroup.class) に違反
+    student.setKanaName("テストタロウ");
+    student.setEmail("test@example.com");
+
+    StudentDetail studentDetail = new StudentDetail();
+    studentDetail.setStudent(student);
+    studentDetail.setStudentCourseList(Collections.emptyList());
+
+    // Act & Assert
+    mockMvc.perform(post("/registerStudent")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(studentDetail)))
+        .andExpect(status().isBadRequest());
+
+    // Verify
+    verify(service, times(0)).registerStudent(any(StudentDetail.class));
+  }
+
+  @Test
+  void updateStudent_shouldReturnBadRequest_whenIdIsNull() throws Exception {
+    // Arrange: IDがnullの受講生オブジェクトを作成
+    Student student = new Student();
+    student.setId(null); // @NotNull(groups = UpdateValidationGroup.class) に違反
+    student.setName("テスト太郎");
+    student.setKanaName("テストタロウ");
+    student.setEmail("test@example.com");
+
+    StudentDetail studentDetail = new StudentDetail();
+    studentDetail.setStudent(student);
+    studentDetail.setStudentCourseList(Collections.emptyList());
+
+    // Act & Assert
+    mockMvc.perform(put("/updateStudent")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(studentDetail)))
+        .andExpect(status().isBadRequest());
+
+    // Verify: Serviceのメソッドは呼ばれない
+    verify(service, times(0)).updateStudent(any(StudentDetail.class));
+  }
+
+  @Test
+  void updateStudent_shouldSucceed_whenRequestIsValid() throws Exception {
+    // Arrange: バリデーションを通過する正しい受講生オブジェクトを作成
+    Student student = new Student();
+    student.setId(1); // 更新なのでIDは必須
+    student.setName("更新太郎");
+    student.setKanaName("コウシンタロウ");
+    student.setEmail("update@example.com");
+
+    StudentDetail studentDetail = new StudentDetail();
+    studentDetail.setStudent(student);
+    studentDetail.setStudentCourseList(Collections.emptyList());
+
+    // Act & Assert
+    mockMvc.perform(put("/updateStudent")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(studentDetail)))
+        .andExpect(status().isOk()); // 成功するので 200 OK を期待
+
+    // Verify: バリデーションを通過するので、Serviceのメソッドが1回呼ばれるはず
     verify(service, times(1)).updateStudent(any(StudentDetail.class));
   }
 }
