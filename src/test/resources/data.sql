@@ -1,0 +1,23 @@
+INSERT INTO students (name, kana_name, nickname, email, area, age, sex, remark, isDeleted)
+VALUES
+('佐藤 太郎', 'サトウ タロウ', 'タロ', 'taro.sato@example.com', '東京', 20, '男', '特待生', 0),
+('鈴木 花子', 'スズキ ハナコ', 'ハナ', 'hanako.suzuki@example.com', '大阪', 22, '女', '推薦入学', 0),
+('田中 一郎', 'タナカ イチロウ', 'イチ', 'ichiro.tanaka@example.com', '名古屋', 19, '男', '留学生', 0),
+('高橋 美咲', 'タカハシ ミサキ', 'ミサ', 'misaki.takahashi@example.com', '札幌', 21, '女', NULL, 0),
+('伊藤 健', 'イトウ ケン', 'ケンケン', 'ken.ito@example.com', '福岡', 23, '男', NULL, 0);
+
+INSERT INTO students_courses (student_id, course_name, course_start_at, course_end_at) VALUES
+(1, 'Java基礎', '2024-04-01', '2025-03-31'),
+(1, 'Spring Boot入門', '2024-10-01', '2025-09-30'),
+
+(2, 'Python入門', '2024-04-01', '2025-03-31'),
+(2, 'Django実践', '2024-10-01', '2025-09-30'),
+
+(3, 'JavaScript基礎', '2024-04-01', '2025-03-31'),
+(3, 'React応用', '2024-10-01', '2025-09-30'),
+
+(4, 'C言語基礎', '2024-04-01', '2025-03-31'),
+(4, 'アルゴリズムとデータ構造', '2024-10-01', '2025-09-30'),
+
+(5, 'SQLとデータベース設計', '2024-04-01', '2025-03-31'),
+(5, 'クラウドアプリ開発(AWS)', '2024-10-01', '2025-09-30');
