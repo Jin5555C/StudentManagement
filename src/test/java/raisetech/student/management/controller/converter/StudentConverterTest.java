@@ -8,13 +8,10 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import raisetech.student.management.data.Student;
 import raisetech.student.management.data.StudentCourse;
 import raisetech.student.management.domain.StudentDetail;
 
-@ExtendWith(MockitoExtension.class)
 class StudentConverterTest {
 
   private StudentConverter sut;
@@ -35,8 +32,8 @@ class StudentConverterTest {
     Student student2 = new Student();
     student2.setId(2);
     student2.setName("テスト 二郎");
-    student1.setKanaName("テスト ニロウ");
-    student1.setEmail("niro@test.com");
+    student2.setKanaName("テスト ニロウ");
+    student2.setEmail("niro@test.com");
 
     List<Student> students = List.of(student1, student2);
 
@@ -74,8 +71,11 @@ class StudentConverterTest {
         .orElseThrow();
     assertEquals("テスト 一郎", detail1.getStudent().getName());
     assertEquals(2, detail1.getStudentCourseList().size(), "student1のコースは2つ");
-    assertTrue(detail1.getStudentCourseList().contains(course1a));
-    assertTrue(detail1.getStudentCourseList().contains(course1b));
+
+    List<String> courseNames1 = detail1.getStudentCourseList().stream()
+        .map(StudentCourse::getCourseName)
+        .toList();
+    assertEquals(List.of("Java", "AWS"), courseNames1);
 
     // student2 の検証
     StudentDetail detail2 = actualDetails.stream()
@@ -84,6 +84,12 @@ class StudentConverterTest {
         .orElseThrow();
     assertEquals("テスト 二郎", detail2.getStudent().getName());
     assertEquals(1, detail2.getStudentCourseList().size(), "student2のコースは1つ");
+
+    List<String> courseNames2 = detail2.getStudentCourseList().stream()
+        .map(StudentCourse::getCourseName)
+        .toList();
+    assertEquals(List.of("Git"), courseNames2);
+
     assertTrue(detail2.getStudentCourseList().contains(course2a));
   }
 
