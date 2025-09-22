@@ -6,11 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import raisetech.student.management.data.Student;
 import raisetech.student.management.domain.StudentDetail;
 import raisetech.student.management.exception.ResourceNotFoundException;
 import raisetech.student.management.service.StudentService;
@@ -53,6 +55,17 @@ public class StudentController {
       throw new ResourceNotFoundException("指定されたIDの受講生が見つかりません: " + id);
     }
     return student;
+  }
+
+  /**
+   * 受講生を条件で検索します。 URLのクエリパラメータで検索条件を指定します。 例: /students/search?name=山田&age=30
+   *
+   * @param student 検索条件
+   * @return 検索結果の受講生詳細一覧
+   */
+  @GetMapping("/student/search")
+  public List<StudentDetail> searchStudentList(@ModelAttribute Student student) {
+    return service.searchStudentList(student);
   }
 
   /**

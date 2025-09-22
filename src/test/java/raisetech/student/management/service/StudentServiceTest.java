@@ -2,6 +2,7 @@ package raisetech.student.management.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -32,14 +33,15 @@ class StudentServiceTest {
   @Mock
   private StudentConverter converter;
 
-  private  StudentService sut;
+  private StudentService sut;
 
   @BeforeEach
-  void before(){
-    sut = new StudentService(repository,converter);
+  void before() {
+    sut = new StudentService(repository, converter);
 
   }
-//  void 受講生詳細の一覧検索_リポジトリとコンバーターの処理が適切に呼び出せていること()
+
+  //  void 受講生詳細の一覧検索_リポジトリとコンバーターの処理が適切に呼び出せていること()
   @Test
   void searchStudentDetails_shouldCallRepositoryAndConverterProperly() {
     List<Student> studentList = new ArrayList<>();
@@ -78,7 +80,7 @@ class StudentServiceTest {
         .isEqualTo(studentCourseList);
   }
 
-//  void 受講生詳細検索_studentがnullの場合はnullを返すこと()
+  //  void 受講生詳細検索_studentがnullの場合はnullを返すこと()
   @Test
   void searchStudentDetails_shouldReturnNullWhenStudentIsNull() {
     Integer studentId = 1;
@@ -92,6 +94,52 @@ class StudentServiceTest {
     assertThat(actual).isNull();
   }
 
+  //  void 受講生条件検索_条件に当てはまる受講生一覧を表示する()
+  @Test
+  void searchStudentList_shouldReturnStudentListWhenStudentsAreFound() {
+    Student searchCondition = new Student();
+    searchCondition.setName("テスト太郎");
+
+    Student student1 = createStudent(1);
+    Student student2 = createStudent(2);
+    List<Student> studentList = List.of(student1, student2);
+    when(repository.searchStudentList(searchCondition)).thenReturn(studentList);
+
+    List<Integer> studentIdList = List.of(1, 2);
+    List<StudentCourse> studentCourseList = List.of(createCourse(101), createCourse(102));
+    when(repository.searchStudentCoursesByStudentIdList(studentIdList)).thenReturn(
+        studentCourseList);
+
+    List<StudentDetail> expectedStudentDetails = List.of(new StudentDetail(), new StudentDetail());
+    when(converter.convertStudentDetails(studentList, studentCourseList)).thenReturn(
+        expectedStudentDetails);
+
+    List<StudentDetail> actual = sut.searchStudentList(searchCondition);
+
+    verify(repository, times(1)).searchStudentList(searchCondition);
+    verify(repository, times(1)).searchStudentCoursesByStudentIdList(studentIdList);
+    verify(converter, times(1)).convertStudentDetails(studentList, studentCourseList);
+
+    assertThat(actual).isEqualTo(expectedStudentDetails);
+  }
+
+  //  void 受講生条件検索_条件に当てはまる受講生が見つからない場合に空のリストを返すこと()
+  @Test
+  void searchStudentList_shouldReturnEmptyListWhenNoStudentsAreFound() {
+    Student searchCondition = new Student();
+    searchCondition.setName("存在しない名前");
+
+    when(repository.searchStudentList(searchCondition)).thenReturn(new ArrayList<>());
+
+    List<StudentDetail> actual = sut.searchStudentList(searchCondition);
+
+    verify(repository, times(1)).searchStudentList(searchCondition);
+    verify(repository, never()).searchStudentCoursesByStudentIdList(anyList());
+    verify(converter, never()).convertStudentDetails(anyList(), anyList());
+
+    assertThat(actual).isEmpty();
+  }
+
   @Test
 //  void 受講生詳細登録_受講生と受講生コース情報を別々のテーブルに登録できること()
   void registerStudentDetail_shouldInsertStudentAndCourseSeparately() {
@@ -99,7 +147,7 @@ class StudentServiceTest {
     StudentCourse course1 = createCourse(null);
     StudentCourse course2 = createCourse(null);
 
-    StudentDetail studentDetail = createStudentDetail(student, course1,course2);
+    StudentDetail studentDetail = createStudentDetail(student, course1, course2);
     StudentDetail result = sut.registerStudent(studentDetail);
 
     verify(repository).registerStudent(student);
@@ -117,7 +165,7 @@ class StudentServiceTest {
     StudentCourse newCourse = createCourse(null); //  新規追加
     StudentCourse existingCourse = createCourse(100); // 既存更新
 
-    StudentDetail studentDetail = createStudentDetail(student,newCourse,existingCourse);
+    StudentDetail studentDetail = createStudentDetail(student, newCourse, existingCourse);
     sut.updateStudent(studentDetail);
 
     verify(repository).updateStudent(student);
@@ -130,7 +178,7 @@ class StudentServiceTest {
   void updateStudentDetail_shouldRegisterNewCourse() {
     Student student = createStudent(1);
 
-    StudentDetail studentDetail = createStudentDetail(student,(StudentCourse[]) null);
+    StudentDetail studentDetail = createStudentDetail(student, (StudentCourse[]) null);
 
     sut.updateStudent(studentDetail);
 
