@@ -18,13 +18,14 @@ class StudentRepositoryTest {
 
   @Test
 // 受講生の全件検索が行えること
-  void search_shouldFindAllStudent() {
+  void search_shouldFindAllStudentList() {
     List<Student> actual = sut.search();
     assertThat(actual.size()).isEqualTo(5);
   }
 
   @Test
-  void IDを指定して受講生の検索が行えること() {
+//  IDを指定して受講生の検索が行えること
+  void searchStudent_shouldFindExactlyOneStudent() {
     Student actual = sut.searchStudent(1);
     assertThat(actual.getName()).isEqualTo("佐藤 太郎");
     assertThat(actual.getKanaName()).isEqualTo("サトウ タロウ");
@@ -32,13 +33,14 @@ class StudentRepositoryTest {
   }
 
   @Test
-  void 受講生コース情報の全件検索が行えること() {
+// 受講生コース情報の全件検索が行えること
+  void searchStudentCourseList_shouldFindAllStudentCourseList() {
     List<StudentCourse> actual = sut.searchStudentCourseList();
     assertThat(actual.size()).isEqualTo(10);
   }
 
   @Test
-  void 受講生IDを指定してコース情報が検索できること() {
+  void searchStudentCourse_shouldFindCoursesByStudentId() {
     List<StudentCourse> actual = sut.searchStudentCourse(1);
     assertThat(actual.size()).isEqualTo(2);
     assertThat(actual).extracting(StudentCourse::getCourseName)
@@ -46,7 +48,8 @@ class StudentRepositoryTest {
   }
 
   @Test
-  void 受講生の登録が行えること() {
+    // 受講生の登録が行えること
+  void registerStudent_shouldInsertNewStudent() {
     Student student = new Student();
     student.setName("新規太郎");
     student.setKanaName("シンキタロウ");
@@ -66,7 +69,8 @@ class StudentRepositoryTest {
   }
 
   @Test
-  void 受講生コース情報の登録が行えること() {
+//  受講生コース情報の登録が行えること
+  void registerStudentCourse_shouldInsertNewStudentCourse() {
     StudentCourse studentCourse = new StudentCourse();
     // 受講生ID:5の伊藤さんに新しいコースを追加
     studentCourse.setStudentId(5);
@@ -82,7 +86,8 @@ class StudentRepositoryTest {
   }
 
   @Test
-  void 受講生情報の更新が行えること() {
+//   受講生情報の更新が行えること
+  void updateStudent_shouldUpdateStudentInfo() {
     // ID:2の鈴木さんの情報を更新する
     Student student = sut.searchStudent(2);
     student.setName("鈴木 愛子");
@@ -98,7 +103,8 @@ class StudentRepositoryTest {
   }
 
   @Test
-  void 受講生コース情報の更新が行えること() {
+//  受講生コース情報の更新が行えること
+  void updateStudentCourse_shouldUpdateStudentCourseInfo() {
     // 受講生ID:3の田中さんのコース情報を取得
     List<StudentCourse> courses = sut.searchStudentCourse(3);
     StudentCourse targetCourse = courses.get(0); // 最初のコース「JavaScript基礎」を取得
