@@ -5,35 +5,108 @@
 
   <!--受講生の全件検索-->
   <select id="search"
-          resultType="raisetech.student.management.data.Student">
+    resultType="raisetech.student.management.data.Student">
 
     SELECT * FROM students
   </select>
 
   <!--受講生の検索-->
   <select id="searchStudent"
-          resultType="raisetech.student.management.data.Student">
+    resultType="raisetech.student.management.data.Student">
 
     SELECT * FROM students WHERE id = #{id}
   </select>
 
+  <!--受講生の条件検索-->
+  <select id="searchStudentList"
+    parameterType="raisetech.student.management.data.Student"
+    resultType="raisetech.student.management.data.Student">
+
+    SELECT
+    id,
+    name,
+    kana_name,
+    nickname,
+    email,
+    area,
+    age,
+    sex,
+    remark,
+    is_deleted
+    FROM
+    students
+    <where>
+      <if test="id != null">
+        AND id = #{id}
+      </if>
+      <if test="name != null and name != ''">
+        AND name LIKE CONCAT('%', #{name}, '%')
+      </if>
+      <if test="kanaName != null and kanaName != ''">
+        AND kana_name LIKE CONCAT('%', #{kanaName}, '%')
+      </if>
+      <if test="nickname != null and nickname != ''">
+        AND nickname LIKE CONCAT('%', #{nickname}, '%')
+      </if>
+      <if test="email != null and email != ''">
+        AND email = #{email}
+      </if>
+      <if test="area != null and area != ''">
+        AND area = #{area}
+      </if>
+      <if test="age != null">
+        AND age = #{age}
+      </if>
+      <if test="sex != null and sex != ''">
+        AND sex = #{sex}
+      </if>
+      <if test="remark != null and remark != ''">
+        AND remark LIKE CONCAT('%', #{remark}, '%')
+      </if>
+      <if test="isDeleted != null">
+        AND is_deleted = #{isDeleted}
+      </if>
+    </where>
+  </select>
+
   <!--受講生のコース情報の全件検索-->
   <select id="searchStudentCourseList"
-          resultType="raisetech.student.management.data.StudentCourse">
+    resultType="raisetech.student.management.data.StudentCourse">
 
     SELECT * FROM students_courses
   </select>
 
-  <!--受講生のコース情報の全件検索-->
-  <select id="searchStudentCourse" resultType="raisetech.student.management.data.StudentCourse">
+  <!--受講生Idに紐づくコース情報の検索-->
+  <select id="searchStudentCourse"
+    resultType="raisetech.student.management.data.StudentCourse">
+
     SELECT * FROM students_courses WHERE student_id = #{student_id}
+  </select>
+
+  <!--受講生Idのリストに紐づくコース情報の検索-->
+  <select id="searchStudentCoursesByStudentIdList"
+    resultType="raisetech.student.management.data.StudentCourse">
+
+    SELECT
+    id,
+    student_id,
+    course_name,
+    course_start_at,
+    course_end_at
+    FROM
+    students_courses
+    WHERE
+    student_id IN
+    <foreach item="studentId" collection="studentIdList" open="(" separator="," close=")">
+      #{studentId}
+    </foreach>
   </select>
 
   <!--受講生の新規登録-->
   <insert id="registerStudent"
-          parameterType="raisetech.student.management.data.Student"
-          useGeneratedKeys="true"
-          keyProperty="id">
+    parameterType="raisetech.student.management.data.Student"
+    useGeneratedKeys="true"
+    keyProperty="id">
 
     INSERT INTO students
     (name, kana_name, nickname, email, area, age, sex, remark, isDeleted)
@@ -44,9 +117,9 @@
 
   <!-- 受講生コースを登録 -->
   <insert id="registerStudentCourse"
-          parameterType="raisetech.student.management.data.StudentCourse"
-          useGeneratedKeys="true"
-          keyProperty="id">
+    parameterType="raisetech.student.management.data.StudentCourse"
+    useGeneratedKeys="true"
+    keyProperty="id">
 
     INSERT INTO students_courses
     (student_id, course_name, course_start_at, course_end_at)
@@ -56,7 +129,7 @@
 
   <!-- 受講生を更新 -->
   <update id="updateStudent"
-          parameterType="raisetech.student.management.data.Student">
+    parameterType="raisetech.student.management.data.Student">
 
     UPDATE students
     SET
@@ -74,7 +147,7 @@
 
   <!-- 受講生コース情報のコース名を更新 -->
   <update id="updateStudentCourse"
-          parameterType="raisetech.student.management.data.StudentCourse">
+    parameterType="raisetech.student.management.data.StudentCourse">
 
     UPDATE students_courses
     SET course_name = #{courseName}

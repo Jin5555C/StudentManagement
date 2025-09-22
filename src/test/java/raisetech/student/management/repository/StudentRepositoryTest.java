@@ -34,7 +34,7 @@ class StudentRepositoryTest {
 
   @Test
 // 受講生コース情報の全件検索が行えること
-  void searchStudentCourseList_shouldFindAllStudentCourseList() {
+  void searchStudentCourseList_shouldFindAllCourseList() {
     List<StudentCourse> actual = sut.searchStudentCourseList();
     assertThat(actual.size()).isEqualTo(10);
   }
@@ -121,5 +121,33 @@ class StudentRepositoryTest {
     // 古いコース名が存在しないことを確認
     assertThat(actual).extracting(StudentCourse::getCourseName)
         .doesNotContain("JavaScript基礎");
+  }
+
+  @Test
+    //  受講生IDのリストに紐づく受講生コース情報を検索できること
+  void searchStudentCoursesByStudentIdList_shouldFindCoursesForMultipleStudents() {
+    // 検索対象の受講生IDリストを作成 (ID: 1 の佐藤さんと ID: 3 の田中さん)
+    List<Integer> studentIdList = List.of(1, 3);
+
+    // 作成したIDリストを使って、コース情報を検索
+    List<StudentCourse> actual = sut.searchStudentCoursesByStudentIdList(studentIdList);
+
+    // 合計4件のコース情報が取得できることを確認 (佐藤さん:2件 + 田中さん:2件)
+    assertThat(actual.size()).isEqualTo(4);
+
+    // 取得したコース名に期待通りのものが含まれているか順不同で確認
+    assertThat(actual).extracting(StudentCourse::getCourseName)
+        .containsExactlyInAnyOrder("Java基礎", "Spring Boot入門", "JavaScript基礎", "React応用");
+  }
+
+  @Test
+    //  存在しない受講生IDのリストを渡した場合に空のリストを返すこと
+  void searchStudentCoursesByStudentIdList_shouldReturnEmptyListForNonExistentIds() {
+    // データベースに存在しないIDのリストを作成
+    List<Integer> studentIdList = List.of(998, 999);
+
+    List<StudentCourse> actual = sut.searchStudentCoursesByStudentIdList(studentIdList);
+
+    assertThat(actual).isEmpty();
   }
 }

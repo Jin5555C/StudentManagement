@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -111,6 +112,35 @@ class StudentControllerTest {
         .andExpect(content().string("success updating"));
 
     verify(service, times(1)).updateStudent(any(StudentDetail.class));
+  }
+
+  @Test
+    //  受講生を条件で検索し、結果が返されること
+  void searchStudentList_shouldReturnStudentDetailsByCondition() throws Exception {
+    StudentDetail detail1 = new StudentDetail();
+    List<StudentDetail> expectedDetails = List.of(detail1);
+    when(service.searchStudentList(any(Student.class))).thenReturn(expectedDetails);
+
+    mockMvc.perform(get("/student/search")
+            .param("name", "テスト")
+            .param("area", "東京"))
+        .andExpect(status().isOk())
+        .andExpect(content().json(objectMapper.writeValueAsString(expectedDetails)));
+
+    verify(service, times(1)).searchStudentList(any(Student.class));
+  }
+
+  @Test
+    //  受講生を条件で検索し、結果が0件の場合に空のリストが返されること
+  void searchStudentList_shouldReturnEmptyListWhenNoMatches() throws Exception {
+    when(service.searchStudentList(any(Student.class))).thenReturn(Collections.emptyList());
+
+    mockMvc.perform(get("/student/search")
+            .param("name", "存在しない名前"))
+        .andExpect(status().isOk())
+        .andExpect(content().json("[]"));
+
+    verify(service, times(1)).searchStudentList(any(Student.class));
   }
 
   // ++++++++++++++ ここからバリデーションのテスト ++++++++++++++
