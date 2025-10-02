@@ -109,7 +109,7 @@
     keyProperty="id">
 
     INSERT INTO students
-    (name, kana_name, nickname, email, area, age, sex, remark, isDeleted)
+    (name, kana_name, nickname, email, area, age, sex, remark, is_deleted)
     VALUES
     (#{name}, #{kanaName}, #{nickname}, #{email}, #{area}, #{age}, #{sex}, #{remark}, false)
   </insert>
@@ -141,7 +141,7 @@
     age = #{age},
     sex = #{sex},
     remark = #{remark},
-    isDeleted = #{isDeleted}
+    is_deleted = #{isDeleted}
     WHERE id = #{id}
   </update>
 

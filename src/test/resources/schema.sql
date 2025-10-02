@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS students (
   age INT,
   sex VARCHAR(10),
   remark VARCHAR(50),
-  isDeleted BOOLEAN DEFAULT FALSE
+  is_deleted BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS students_courses (
