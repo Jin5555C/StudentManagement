@@ -1,7 +1,6 @@
 package raisetech.student.management.controller;
 
 import jakarta.validation.constraints.NotNull;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,8 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import raisetech.student.management.controller.request.SearchStudentRequest;
 import raisetech.student.management.data.ApplicationStatus;
-import raisetech.student.management.data.Student;
 import raisetech.student.management.domain.ApplicationStatusType;
 import raisetech.student.management.domain.StudentDetail;
 import raisetech.student.management.exception.ResourceNotFoundException;
@@ -26,14 +26,12 @@ import raisetech.student.management.validation.CreateValidationGroup;
 import raisetech.student.management.validation.UpdateValidationGroup;
 
 /**
- * 受講生の検索や登録、更新などを置こうなREST　APIを受け付ける実行されるControllerです。
+ * 受講生の検索や登録、更新などを行うREST　APIを受け付ける実行されるControllerです。
  */
-
 @RestController
 public class StudentController {
 
   private StudentService service;
-
 
   @Autowired
   public StudentController(StudentService service) {
@@ -42,19 +40,12 @@ public class StudentController {
 
 
   /**
-   * 受講生詳細一覧検索。 全件検索を行うので、条件指定は行いません。* ＠return 受講生詳細一覧（全件）
+   * 受講生検索（ID指定）。
+   * RESTful: GET /students/{id}
+   * @param id 受講生ID
+   * @return 受講生
    */
-  @GetMapping("/studentList")
-  public List<StudentDetail> getStudentList() {
-    return service.searchStudentList();
-  }
-
-  /**
-   * 受講生詳細の検索。 IDに基づく任意の受講生情報取得を行います。
-   *
-   * @param id 受講生ID ＠return 受講生
-   */
-  @GetMapping("/student/{id}")
+  @GetMapping("/students/{id}")
   public StudentDetail getStudent(@PathVariable @NotNull Integer id) {
     StudentDetail student = service.searchStudent(id);
     if (student == null) {
@@ -64,51 +55,47 @@ public class StudentController {
   }
 
   /**
-   * 受講生を条件で検索します。 URLのクエリパラメータで検索条件を指定します。 例: /students/search?name=山田&age=30
-   *
-   * @param student 検索条件
+   * 受講生を条件で検索します。
+   * RESTful: GET /students?name=...&age=...
+   * @param request 検索条件を保持するDTO
    * @return 検索結果の受講生詳細一覧
    */
-  @GetMapping("/student/search")
-  public List<StudentDetail> searchStudentList(@ModelAttribute Student student) {
-    return service.searchStudentList(student);
+  @GetMapping("/students")
+  public List<StudentDetail> searchStudentList(@ModelAttribute SearchStudentRequest request) {
+    return service.searchStudentList(request.toSearchCondition());
   }
 
   /**
    * 受講生詳細の登録。
-   *
-   * @ param studentDetail 受講生詳細
-   * @ return　実行結果
+   * RESTful: POST /students
    */
-  @PostMapping("/registerStudent")
+  @PostMapping("/students")
   public ResponseEntity<StudentDetail> registerStudent(
-      @RequestBody @Validated(CreateValidationGroup.class)
-      StudentDetail studentDetail) {
+          @RequestBody @Validated(CreateValidationGroup.class)
+          StudentDetail studentDetail) {
     StudentDetail responseStudentDetail = service.registerStudent(studentDetail);
     return ResponseEntity.ok(responseStudentDetail);
   }
 
   /**
-   * 受講生詳細の更新を行います。キャンセルフラグの更新もここで行います（理論削除）
-   *
-   * @ param studentDetail　受講生詳細
-   * @ return　実行結果
+   * 受講生詳細の更新を行います。
+   * RESTful: PUT /students
    */
-  @PutMapping("/updateStudent")
+  @PutMapping("/students")
   public ResponseEntity<String> updateStudent(
-      @RequestBody @Validated(UpdateValidationGroup.class)
-      StudentDetail studentDetail) {
+          @RequestBody @Validated(UpdateValidationGroup.class)
+          StudentDetail studentDetail) {
     service.updateStudent(studentDetail);
     return ResponseEntity.ok("success updating");
   }
 
+
   /**
    * 申し込み状況の選択肢一覧を取得します。
-   * (仮申込、本申込、受講中、受講終了)
-   *
+   * RESTful: GET /application-statuses/options
    * @return 申し込み状況の日本語名リスト
    */
-  @GetMapping("/applicationStatuses/options")
+  @GetMapping("/application-statuses/options")
   public List<String> getApplicationStatusOptions() {
     return Arrays.stream(ApplicationStatusType.values())
             .map(ApplicationStatusType::getJapaneseName)
@@ -117,21 +104,21 @@ public class StudentController {
 
   /**
    * 全てのコースの申し込み状況一覧を取得します。
-   *
+   * RESTful: GET /application-statuses
    * @return 申し込み状況一覧
    */
-  @GetMapping("/applicationStatuses/list")
+  @GetMapping("/application-statuses")
   public List<ApplicationStatus> getApplicationStatusList() {
     return service.searchApplicationStatusList();
   }
 
   /**
    * IDに紐づくコースの申し込み状況を取得します。
-   *
+   * RESTful: GET /application-statuses/{id}
    * @param id 申し込み状況ID
    * @return 申し込み状況
    */
-  @GetMapping("/applicationStatuses/{id}")
+  @GetMapping("/application-statuses/{id}")
   public ApplicationStatus getApplicationStatus(@PathVariable @NotNull Integer id) {
     return service.searchApplicationStatus(id);
   }

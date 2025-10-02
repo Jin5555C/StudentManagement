@@ -55,11 +55,11 @@ public interface StudentRepository {
   /**
    * 受講生IDのリストに紐づく受講生コース情報を検索します。
    *
-   * @param student_id_list 受講生IDのリスト
+   * @param studentIdList 受講生IDのリスト
    * @return 受講生IDに紐づく受講コース情報
    */
   List<StudentCourse> searchStudentCoursesByStudentIdList(
-      @Param("studentIdList") List<Integer> student_id_list);
+      @Param("studentIdList") List<Integer> studentIdList);
 
   /**
    * 受講生を新規登録します。IDに関しては自動採番を行う。
