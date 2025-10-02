@@ -45,7 +45,6 @@ class StudentControllerTest {
 
   @Test
   void getStudentList_shouldReturnEmptyList() throws Exception {
-    // when/verifyのロジックは同じ
     when(service.searchStudentList()).thenReturn(Collections.emptyList());
 
     mockMvc.perform(get("/studentList")) // MockMvcRequestBuildersはstatic importすると綺麗
