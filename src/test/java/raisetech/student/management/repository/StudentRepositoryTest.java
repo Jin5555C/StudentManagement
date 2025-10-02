@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import raisetech.student.management.data.ApplicationStatus;
 import raisetech.student.management.data.Student;
 import raisetech.student.management.data.StudentCourse;
 
@@ -146,13 +147,31 @@ class StudentRepositoryTest {
   }
 
   @Test
-    //  存在しない受講生IDのリストを渡した場合に空のリストを返すこと
+  //  存在しない受講生IDのリストを渡した場合に空のリストを返すこと
   void searchStudentCoursesByStudentIdList_shouldReturnEmptyListForNonExistentIds() {
-    // データベースに存在しないIDのリストを作成
     List<Integer> studentIdList = List.of(998, 999);
-
     List<StudentCourse> actual = sut.searchStudentCoursesByStudentIdList(studentIdList);
 
     assertThat(actual).isEmpty();
+  }
+
+  @Test
+  // 申し込み状況の全件検索が行えること
+  void searchApplicationStatusList_shouldFindAllStatuses() {
+    List<ApplicationStatus> actual = sut.searchApplicationStatusList();
+    assertThat(actual).hasSize(5);
+    assertThat(actual).extracting(ApplicationStatus::getStatus)
+            .contains("仮申込", "本申込", "受講中", "受講終了");
+  }
+
+  @Test
+  // IDを指定して申し込み状況の検索が行えること
+  void searchApplicationStatus_shouldFindExactlyOneStatus() {
+    Integer targetId = 3;
+    ApplicationStatus actual = sut.searchApplicationStatus(targetId);
+
+    assertThat(actual.getId()).isEqualTo(targetId);
+    assertThat(actual.getStatus()).isEqualTo("受講中");
+    assertThat(actual.getCourseId()).isEqualTo(3);
   }
 }

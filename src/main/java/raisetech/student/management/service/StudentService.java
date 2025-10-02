@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import raisetech.student.management.controller.converter.StudentConverter;
+import raisetech.student.management.data.ApplicationStatus;
 import raisetech.student.management.data.Student;
 import raisetech.student.management.data.StudentCourse;
 import raisetech.student.management.domain.StudentDetail;
@@ -131,5 +132,24 @@ public class StudentService {
         }
       });
     }
+  }
+
+  /**
+   * 全てのコースの申し込み状況を取得します。
+   *
+   * @return 申し込み状況の一覧
+   */
+  public List<ApplicationStatus> searchApplicationStatusList() {
+    return repository.searchApplicationStatusList();
+  }
+
+  /**
+   * IDに紐づくコースの申し込み状況を取得します。
+   *
+   * @param id 申し込み状況ID
+   * @return 申し込み状況
+   */
+  public ApplicationStatus searchApplicationStatus(Integer id) {
+    return repository.searchApplicationStatus(id);
   }
 }

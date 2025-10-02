@@ -26,4 +26,8 @@ public class StudentDetail {
   @Valid
   private List<ApplicationStatus> applicationStatuses = new ArrayList<>();
 
+  public StudentDetail(Student student, List<StudentCourse> studentCourseList) {
+    this.student = student;
+    this.studentCourseList = studentCourseList;
+  }
 }

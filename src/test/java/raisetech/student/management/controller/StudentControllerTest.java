@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static util.TestDataFactory.createApplicationStatus;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
@@ -21,6 +22,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import raisetech.student.management.data.ApplicationStatus;
 import raisetech.student.management.data.Student;
 import raisetech.student.management.domain.StudentDetail;
 import raisetech.student.management.service.StudentService;
@@ -38,11 +40,8 @@ class StudentControllerTest {
   @MockitoBean
   private StudentService service;
 
-  // ✅ Springが管理するObjectMapperを注入する
   @Autowired
   private ObjectMapper objectMapper;
-
-  // 手動でのセットアップは不要になるので @BeforeEach は削除
 
   @Test
   void getStudentList_shouldReturnEmptyList() throws Exception {
@@ -140,6 +139,58 @@ class StudentControllerTest {
         .andExpect(content().json("[]"));
 
     verify(service, times(1)).searchStudentList(any(Student.class));
+  }
+
+  // 申し込み状況の選択肢一覧を取得する
+  @Test
+  void getApplicationStatusOptions_shouldReturnAllStatusNames() throws Exception {
+    // Act & Assert
+    // ControllerがEnumを直接利用する場合、Serviceのモックは不要。
+    mockMvc.perform(get("/applicationStatuses/options"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.length()", is(4)))
+            .andExpect(jsonPath("$[0]", is("仮申込")))
+            .andExpect(jsonPath("$[1]", is("本申込")))
+            .andExpect(jsonPath("$[2]", is("受講中")))
+            .andExpect(jsonPath("$[3]", is("受講終了")));
+
+    verify(service, times(0)).searchStudentList();
+  }
+
+  // 申し込み状況の全件リストを取得する
+  @Test
+  void getApplicationStatusList_shouldReturnStatusesFromService() throws Exception {
+    // Arrange
+    ApplicationStatus as1 = createApplicationStatus(1, "仮申込");
+    ApplicationStatus as2 = createApplicationStatus(2, "本申込");
+
+    List<ApplicationStatus> expectedList = List.of(as1, as2);
+    when(service.searchApplicationStatusList()).thenReturn(expectedList);
+
+    mockMvc.perform(get("/applicationStatuses/list"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()", is(2)))
+            .andExpect(jsonPath("$[0].status", is("仮申込")))
+            .andExpect(jsonPath("$[1].status", is("本申込")));
+
+    verify(service, times(1)).searchApplicationStatusList();
+  }
+
+  // IDを指定して申し込み状況を取得するAPIのテスト
+  @Test
+  void getApplicationStatus_shouldReturnSingleStatus_whenFound() throws Exception {
+    Integer targetId = 1;
+    ApplicationStatus as = createApplicationStatus(targetId, "受講中");
+
+    when(service.searchApplicationStatus(targetId)).thenReturn(as);
+
+    mockMvc.perform(get("/applicationStatuses/{id}", targetId))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id", is(targetId)))
+            .andExpect(jsonPath("$.status", is("受講中")));
+
+    verify(service, times(1)).searchApplicationStatus(targetId);
   }
 
   // ++++++++++++++ ここからバリデーションのテスト ++++++++++++++

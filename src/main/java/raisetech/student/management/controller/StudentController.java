@@ -1,7 +1,11 @@
 package raisetech.student.management.controller;
 
 import jakarta.validation.constraints.NotNull;
+
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -12,7 +16,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import raisetech.student.management.data.ApplicationStatus;
 import raisetech.student.management.data.Student;
+import raisetech.student.management.domain.ApplicationStatusType;
 import raisetech.student.management.domain.StudentDetail;
 import raisetech.student.management.exception.ResourceNotFoundException;
 import raisetech.student.management.service.StudentService;
@@ -94,5 +100,39 @@ public class StudentController {
       StudentDetail studentDetail) {
     service.updateStudent(studentDetail);
     return ResponseEntity.ok("success updating");
+  }
+
+  /**
+   * 申し込み状況の選択肢一覧を取得します。
+   * (仮申込、本申込、受講中、受講終了)
+   *
+   * @return 申し込み状況の日本語名リスト
+   */
+  @GetMapping("/applicationStatuses/options")
+  public List<String> getApplicationStatusOptions() {
+    return Arrays.stream(ApplicationStatusType.values())
+            .map(ApplicationStatusType::getJapaneseName)
+            .collect(Collectors.toList());
+  }
+
+  /**
+   * 全てのコースの申し込み状況一覧を取得します。
+   *
+   * @return 申し込み状況一覧
+   */
+  @GetMapping("/applicationStatuses/list")
+  public List<ApplicationStatus> getApplicationStatusList() {
+    return service.searchApplicationStatusList();
+  }
+
+  /**
+   * IDに紐づくコースの申し込み状況を取得します。
+   *
+   * @param id 申し込み状況ID
+   * @return 申し込み状況
+   */
+  @GetMapping("/applicationStatuses/{id}")
+  public ApplicationStatus getApplicationStatus(@PathVariable @NotNull Integer id) {
+    return service.searchApplicationStatus(id);
   }
 }

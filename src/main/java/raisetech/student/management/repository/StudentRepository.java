@@ -3,6 +3,7 @@ package raisetech.student.management.repository;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import raisetech.student.management.data.ApplicationStatus;
 import raisetech.student.management.data.Student;
 import raisetech.student.management.data.StudentCourse;
 
@@ -90,11 +91,19 @@ public interface StudentRepository {
   void updateStudentCourse(StudentCourse studentCourse);
 
   /**
-   * 受講生コース情報のコース名を更新します。
+   * 全てのコースの申し込み状況（仮申込、本申込、受講中、受講終了）を取得します。
    *
-   * @param studentCourse 　受講生コース情報
+   * @return 申し込み状況の一覧
    */
-  void searchAppicationStatus();
+  List<ApplicationStatus> searchApplicationStatusList();
+
+  /**
+   * IDに紐づくコースの申し込み状況を取得します。
+   *
+   * @param id 申し込み状況ID
+   * @return 申し込み状況
+   */
+  ApplicationStatus searchApplicationStatus(Integer id);
 
 
 }

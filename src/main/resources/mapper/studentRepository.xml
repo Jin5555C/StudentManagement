@@ -153,4 +153,31 @@
     SET course_name = #{courseName}
     WHERE id = #{id}
   </update>
+
+  <!-- コース情報の申し込み状況一覧 -->
+  <select id="searchApplicationStatusList" resultType="raisetech.student.management.data.ApplicationStatus">
+    SELECT
+    id,
+    course_id,
+    status,
+    create_at,
+    update_at
+    FROM
+    application_status
+  </select>
+
+  <!-- コース情報の申し込み状況 -->
+  <select id="searchApplicationStatus" resultType="raisetech.student.management.data.ApplicationStatus">
+    SELECT
+    id,
+    course_id,
+    status,
+    create_at,
+    update_at
+    FROM
+    application_status
+    WHERE
+    id = #{id}
+  </select>
+
 </mapper>
