@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS students (
 
 CREATE TABLE IF NOT EXISTS students_courses (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  student_id INT,
-  course_name VARCHAR(255),
-  course_start_at TIMESTAMP,
-  course_end_at TIMESTAMP
+  studentId INT,
+  courseName VARCHAR(255),
+  courseStartAt TIMESTAMP,
+  courseEndAt TIMESTAMP
 );
