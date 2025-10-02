@@ -8,13 +8,13 @@ CREATE TABLE IF NOT EXISTS students (
   age INT,
   sex VARCHAR(10),
   remark VARCHAR(50),
-  isDeleted BOOLEAN DEFAULT FALSE
+  is_deleted BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS students_courses (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  studentId INT,
-  courseName VARCHAR(255),
-  courseStartAt TIMESTAMP,
-  courseEndAt TIMESTAMP
+  student_id INT,
+  course_name VARCHAR(255),
+  course_start_at TIMESTAMP,
+  course_end_at TIMESTAMP
 );

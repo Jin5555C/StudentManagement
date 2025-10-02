@@ -20,7 +20,7 @@ class StudentRepositoryTest {
 // 受講生の全件検索が行えること
   void search_shouldFindAllStudentList() {
     List<Student> actual = sut.search();
-    assertThat(actual.size()).isEqualTo(5);
+    assertThat(actual).hasSize(5);
   }
 
   @Test
@@ -36,13 +36,14 @@ class StudentRepositoryTest {
 // 受講生コース情報の全件検索が行えること
   void searchStudentCourseList_shouldFindAllStudentCourseList() {
     List<StudentCourse> actual = sut.searchStudentCourseList();
-    assertThat(actual.size()).isEqualTo(10);
+    assertThat(actual).hasSize(10);
   }
 
   @Test
+  // 受講生IDを指定して、その受講コース一覧が正しく取得できることを確認するテスト
   void searchStudentCourse_shouldFindCoursesByStudentId() {
     List<StudentCourse> actual = sut.searchStudentCourse(1);
-    assertThat(actual.size()).isEqualTo(2);
+    assertThat(actual).hasSize(2);
     assertThat(actual).extracting(StudentCourse::getCourseName)
         .containsExactly("Java基礎", "Spring Boot入門");
   }
@@ -62,10 +63,14 @@ class StudentRepositoryTest {
 
     sut.registerStudent(student);
 
-    List<Student> actual = sut.search();
+    List<Student> actualList = sut.search();
+    assertThat(actualList).hasSize(6);
 
-    assertThat(actual.size()).isEqualTo(6);
-    assertThat(student.getId()).isNotNull();
+    Student actual = sut.searchStudent(student.getId());
+    assertThat(actual).isNotNull();
+    assertThat(actual.getName()).isEqualTo("新規太郎");
+    assertThat(actual.getKanaName()).isEqualTo("シンキタロウ");
+    assertThat(actual.getEmail()).isEqualTo("taro@test.com");
   }
 
   @Test
@@ -81,7 +86,7 @@ class StudentRepositoryTest {
     sut.registerStudentCourse(studentCourse);
 
     List<StudentCourse> actual = sut.searchStudentCourse(5);
-    assertThat(actual.size()).isEqualTo(3);
+    assertThat(actual).hasSize(3);
     assertThat(actual).extracting(StudentCourse::getCourseName).contains("Go言語入門");
   }
 
