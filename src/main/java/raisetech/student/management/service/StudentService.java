@@ -32,12 +32,15 @@ public class StudentService {
   }
 
   /**
-   * 受講生詳細一覧検索。 全件検索を行うので、条件指定は行いません。 ＠return 受講生一覧（全件）
+   * 受講生詳細一覧検索。 全件検索を行うので、条件指定は行いません。
+   * ＠return 受講生一覧（全件）
    */
   public List<StudentDetail> searchStudentList() {
     List<Student> studentList = repository.search();
     List<StudentCourse> studentCoursesList = repository.searchStudentCourseList();
-    return converter.convertStudentDetails(studentList, studentCoursesList);
+    List<ApplicationStatus> applicationStatusList = repository.searchApplicationStatusList();
+
+    return converter.convertStudentDetails(studentList, studentCoursesList,applicationStatusList);
   }
 
 
@@ -53,7 +56,15 @@ public class StudentService {
       return null;
     }
     List<StudentCourse> studentCourseList = repository.searchStudentCourse(student.getId());
-    return new StudentDetail(student, studentCourseList);
+    List<ApplicationStatus> applicationStatusList = repository.searchApplicationStatusList();
+
+    List<StudentDetail> studentDetailList = converter.convertStudentDetails(
+            List.of(student),
+            studentCourseList,
+            applicationStatusList
+    );
+
+    return studentDetailList.isEmpty() ? null : studentDetailList.getFirst();
   }
 
   /**
@@ -69,13 +80,16 @@ public class StudentService {
     }
 
     List<Integer> studentIdList = studentList
-        .stream()
-        .map(Student::getId)
-        .collect(Collectors.toList());
+            .stream()
+            .map(Student::getId)
+            .collect(Collectors.toList());
 
     List<StudentCourse> studentCourseList = repository.searchStudentCoursesByStudentIdList(
-        studentIdList);
-    return converter.convertStudentDetails(studentList, studentCourseList);
+            studentIdList);
+
+    List<ApplicationStatus> applicationStatusList = repository.searchApplicationStatusList();
+
+    return converter.convertStudentDetails(studentList, studentCourseList, applicationStatusList);
   }
 
 
@@ -85,7 +99,6 @@ public class StudentService {
    * @param studentDetail 受講生詳細
    * @return 登録情報を付与した受講生詳細
    */
-
   @Transactional
   public StudentDetail registerStudent(StudentDetail studentDetail) {
     Student student = studentDetail.getStudent();
@@ -94,6 +107,13 @@ public class StudentService {
     studentDetail.getStudentCourseList().forEach(studentsCourse -> {
       initStudentsCourse(studentsCourse, student);
       repository.registerStudentCourse(studentsCourse);
+
+      ApplicationStatus newStatus = new ApplicationStatus();
+      newStatus.setCourseId(studentsCourse.getId());
+      newStatus.setStatus("仮申込");
+      newStatus.setCreateAt(LocalDateTime.now());
+      newStatus.setUpdateAt(LocalDateTime.now());
+      repository.registerApplicationStatus(newStatus);
     });
     return studentDetail;
   }
@@ -126,9 +146,21 @@ public class StudentService {
           // 新規追加（INSERT）
           initStudentsCourse(course, studentDetail.getStudent());
           repository.registerStudentCourse(course);
+
+          ApplicationStatus newStatus = new ApplicationStatus();
+          newStatus.setCourseId(course.getId());
+          newStatus.setStatus("仮申込");
+          newStatus.setCreateAt(LocalDateTime.now());
+          newStatus.setUpdateAt(LocalDateTime.now());
+          repository.registerApplicationStatus(newStatus);
         } else {
           // 既存更新（UPDATE）
           repository.updateStudentCourse(course);
+          ApplicationStatus applicationStatus = course.getApplicationStatus();
+          if (applicationStatus != null && applicationStatus.getId() != null) {
+            applicationStatus.setUpdateAt(LocalDateTime.now());
+            repository.updateApplicationStatus(applicationStatus);
+          }
         }
       });
     }
@@ -146,10 +178,10 @@ public class StudentService {
   /**
    * IDに紐づくコースの申し込み状況を取得します。
    *
-   * @param id 申し込み状況ID
+   * @param courseId コースID (students_courses.id)
    * @return 申し込み状況
    */
-  public ApplicationStatus searchApplicationStatus(Integer id) {
-    return repository.searchApplicationStatus(id);
+  public ApplicationStatus searchApplicationStatus(Integer courseId) {
+    return repository.searchApplicationStatus(courseId);
   }
 }

@@ -59,7 +59,7 @@ public interface StudentRepository {
    * @return 受講生IDに紐づく受講コース情報
    */
   List<StudentCourse> searchStudentCoursesByStudentIdList(
-      @Param("studentIdList") List<Integer> studentIdList);
+          @Param("studentIdList") List<Integer> studentIdList);
 
   /**
    * 受講生を新規登録します。IDに関しては自動採番を行う。
@@ -100,11 +100,22 @@ public interface StudentRepository {
   /**
    * IDに紐づくコースの申し込み状況を取得します。
    *
-   * @param id 申し込み状況ID
+   * @param id 申し込み状況ID (またはコースID。Mapperの定義に依存)
    * @return 申し込み状況
    */
   ApplicationStatus searchApplicationStatus(Integer id);
 
+  /**
+   * コースの申し込み状況を新規登録します。
+   *
+   * @param applicationStatus 申し込み状況情報
+   */
+  void registerApplicationStatus(ApplicationStatus applicationStatus);
 
+  /**
+   * コースの申し込み状況を更新します。
+   *
+   * @param applicationStatus 申し込み状況情報
+   */
+  void updateApplicationStatus(ApplicationStatus applicationStatus);
 }
-

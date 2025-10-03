@@ -177,7 +177,25 @@
     create_at AS createAt,
     update_at AS updateAt
     FROM application_status
+    WHERE course_id = #{id} </select>
+
+  <insert id="registerApplicationStatus"
+          parameterType="raisetech.student.management.data.ApplicationStatus"
+          useGeneratedKeys="true"
+          keyProperty="id">
+    INSERT INTO application_status
+    (course_id, status, create_at, update_at)
+    VALUES
+    (#{courseId}, #{status}, #{createAt}, #{updateAt})
+  </insert>
+
+  <update id="updateApplicationStatus"
+          parameterType="raisetech.student.management.data.ApplicationStatus">
+    UPDATE application_status
+    SET
+    status = #{status},
+    update_at = #{updateAt}
     WHERE id = #{id}
-  </select>
+  </update>
 
 </mapper>
