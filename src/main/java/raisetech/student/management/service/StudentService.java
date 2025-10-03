@@ -64,7 +64,7 @@ public class StudentService {
             applicationStatusList
     );
 
-    return studentDetailList.isEmpty() ? null : studentDetailList.getFirst();
+    return studentDetailList.isEmpty() ? null : studentDetailList.get(0);
   }
 
   /**

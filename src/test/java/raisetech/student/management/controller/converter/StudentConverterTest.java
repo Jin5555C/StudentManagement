@@ -134,7 +134,7 @@ class StudentConverterTest {
     assertEquals(1, detail2.getStudentCourseList().size(), "student2のコースは1つ");
 
     // Gitコースの検証 (status3: 受講中)
-    StudentCourse actualCourse2a = detail2.getStudentCourseList().getFirst();
+    StudentCourse actualCourse2a = detail2.getStudentCourseList().get(0);
     assertNotNull(actualCourse2a.getApplicationStatus(), "GitコースにApplicationStatusがセットされている");
     assertEquals("受講中", actualCourse2a.getApplicationStatus().getStatus(), "Gitコースのステータス名が正しい");
     assertEquals(201, actualCourse2a.getId(), "GitコースのIDが正しい");
@@ -160,7 +160,7 @@ class StudentConverterTest {
     List<StudentDetail> actualDetails = sut.convertStudentDetails(students, allCourses, applicationStatuses);
 
     assertEquals(1, actualDetails.size());
-    StudentDetail detail1 = actualDetails.getFirst();
+    StudentDetail detail1 = actualDetails.get(0);
     assertNotNull(detail1.getStudentCourseList());
     assertTrue(detail1.getStudentCourseList().isEmpty(), "コース情報リストは空のはず");
   }
