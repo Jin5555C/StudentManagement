@@ -146,7 +146,11 @@ class StudentRepositoryTest {
     // 取得したコース名に期待通りのものが含まれているか順不同で確認
     assertThat(actual).extracting(StudentCourse::getCourseName)
             .containsExactlyInAnyOrder("Java基礎", "Spring Boot入門", "JavaScript基礎", "React応用");
-  }
+
+    //  取得したコース情報の studentId が、渡したリストに含まれるIDのみであることを確認
+    assertThat(actual).extracting(StudentCourse::getStudentId)
+            .containsOnly(1, 3);
+    }
 
   @Test
     //  存在しない受講生IDのリストを渡した場合に空のリストを返すこと

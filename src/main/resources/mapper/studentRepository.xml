@@ -89,7 +89,7 @@
     course_start_at AS courseStartAt,
     course_end_at AS courseEndAt
     FROM students_courses
-    WHERE student_id = #{student_id}
+    WHERE student_id = #{studentId}
   </select>
 
   <select id="searchStudentCoursesByStudentIdList"
@@ -173,7 +173,7 @@
     create_at AS createAt,
     update_at AS updateAt
     FROM application_status
-    WHERE course_id = #{id} </select>
+    WHERE course_id = #{courseId} </select>
 
   <insert id="registerApplicationStatus"
           parameterType="raisetech.student.management.data.ApplicationStatus"

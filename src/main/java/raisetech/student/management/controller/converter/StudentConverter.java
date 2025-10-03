@@ -26,6 +26,7 @@ public class StudentConverter {
             StudentDetail studentDetail = new StudentDetail();
             studentDetail.setStudent(student);
 
+            // courseId と applicationIdは 1:1 対応で重複することはない。
             List<StudentCourse> convertStudentCourse = studentCourses.stream()
                     .filter(studentCourse -> student.getId().equals(studentCourse.getStudentId()))
                     .map(studentCourse -> {
