@@ -52,7 +52,7 @@
         AND nickname LIKE CONCAT('%', #{nickname}, '%')
       </if>
       <if test="email != null and email != ''">
-        AND email LIKE CONCAT('%', #{email}, '%')
+        AND email = #{email}
       </if>
       <if test="area != null and area != ''">
         AND area = #{area}
@@ -95,7 +95,6 @@
   <select id="searchStudentCoursesByStudentIdList"
           parameterType="java.util.List"
           resultType="raisetech.student.management.data.StudentCourse">
-
     SELECT
     id,
     student_id AS studentId,
@@ -114,7 +113,6 @@
           parameterType="raisetech.student.management.data.Student"
           useGeneratedKeys="true"
           keyProperty="id">
-
     INSERT INTO students
     (name, kana_name, nickname, email, area, age, sex, remark, is_deleted)
     VALUES
@@ -125,7 +123,6 @@
           parameterType="raisetech.student.management.data.StudentCourse"
           useGeneratedKeys="true"
           keyProperty="id">
-
     INSERT INTO students_courses
     (student_id, course_name, course_start_at, course_end_at)
     VALUES
@@ -134,7 +131,6 @@
 
   <update id="updateStudent"
           parameterType="raisetech.student.management.data.Student">
-
     UPDATE students
     SET
     name = #{name},
