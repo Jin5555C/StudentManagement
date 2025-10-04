@@ -2,9 +2,7 @@ package raisetech.student.management.controller;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -157,7 +155,7 @@ class StudentControllerTest {
             .andExpect(jsonPath("$[3]", is("受講終了")));
 
     // 選択肢の取得はServiceを介さないため、ServiceのsearchStudentListは呼ばれない
-    verify(service, times(0)).searchStudentList();
+    verify(service, never()).searchStudentList(any(Student.class));
   }
 
   @Test
