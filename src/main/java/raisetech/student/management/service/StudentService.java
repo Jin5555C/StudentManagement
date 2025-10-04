@@ -36,11 +36,11 @@ public class StudentService {
    * ＠return 受講生一覧（全件）
    */
   public List<StudentDetail> searchStudentList() {
-    List<Student> studentList = repository.search();
-    List<StudentCourse> studentCoursesList = repository.searchStudentCourseList();
-    List<ApplicationStatus> applicationStatusList = repository.searchApplicationStatusList();
+    List<Student> studentList = safeList(repository.search());
+    List<StudentCourse> studentCoursesList = safeList(repository.searchStudentCourseList());
+    List<ApplicationStatus> applicationStatusList = safeList(repository.searchApplicationStatusList());
 
-    return converter.convertStudentDetails(studentList, studentCoursesList,applicationStatusList);
+    return converter.convertStudentDetails(studentList, studentCoursesList, applicationStatusList);
   }
 
 
@@ -55,8 +55,8 @@ public class StudentService {
     if (student == null) {
       return null;
     }
-    List<StudentCourse> studentCourseList = repository.searchStudentCourse(student.getId());
-    List<ApplicationStatus> applicationStatusList = repository.searchApplicationStatusList();
+    List<StudentCourse> studentCourseList = safeList(repository.searchStudentCourse(student.getId()));
+    List<ApplicationStatus> applicationStatusList = safeList(repository.searchApplicationStatusList());
 
     List<StudentDetail> studentDetailList = converter.convertStudentDetails(
             List.of(student),
@@ -74,7 +74,7 @@ public class StudentService {
    * @return 条件に一致した受講生詳細一覧
    */
   public List<StudentDetail> searchStudentList(Student searchCondition) {
-    List<Student> studentList = repository.searchStudentList(searchCondition);
+    List<Student> studentList = safeList(repository.searchStudentList(searchCondition));
     if (studentList.isEmpty()) {
       return Collections.emptyList();
     }
@@ -84,10 +84,10 @@ public class StudentService {
             .map(Student::getId)
             .collect(Collectors.toList());
 
-    List<StudentCourse> studentCourseList = repository.searchStudentCoursesByStudentIdList(
-            studentIdList);
+    List<StudentCourse> studentCourseList = safeList(repository.searchStudentCoursesByStudentIdList(
+            studentIdList));
 
-    List<ApplicationStatus> applicationStatusList = repository.searchApplicationStatusList();
+    List<ApplicationStatus> applicationStatusList = safeList(repository.searchApplicationStatusList());
 
     return converter.convertStudentDetails(studentList, studentCourseList, applicationStatusList);
   }
@@ -104,7 +104,8 @@ public class StudentService {
     Student student = studentDetail.getStudent();
 
     repository.registerStudent(student);
-    studentDetail.getStudentCourseList().forEach(studentsCourse -> {
+    List<StudentCourse> studentCourses = safeList(studentDetail.getStudentCourseList());
+    studentCourses.forEach(studentsCourse -> {
       initStudentsCourse(studentsCourse, student);
       repository.registerStudentCourse(studentsCourse);
 
@@ -140,30 +141,29 @@ public class StudentService {
   @Transactional
   public void updateStudent(StudentDetail studentDetail) {
     repository.updateStudent(studentDetail.getStudent());
-    if (studentDetail.getStudentCourseList() != null) {
-      studentDetail.getStudentCourseList().forEach(course -> {
-        if (course.getId() == null) {
-          // 新規追加（INSERT）
-          initStudentsCourse(course, studentDetail.getStudent());
-          repository.registerStudentCourse(course);
+    List<StudentCourse> studentCourses = safeList(studentDetail.getStudentCourseList());
+    studentCourses.forEach(course -> {
+      if (course.getId() == null) {
+        // 新規追加（INSERT）
+        initStudentsCourse(course, studentDetail.getStudent());
+        repository.registerStudentCourse(course);
 
-          ApplicationStatus newStatus = new ApplicationStatus();
-          newStatus.setCourseId(course.getId());
-          newStatus.setStatus("仮申込");
-          newStatus.setCreateAt(LocalDateTime.now());
-          newStatus.setUpdateAt(LocalDateTime.now());
-          repository.registerApplicationStatus(newStatus);
-        } else {
-          // 既存更新（UPDATE）
-          repository.updateStudentCourse(course);
-          ApplicationStatus applicationStatus = course.getApplicationStatus();
-          if (applicationStatus != null && applicationStatus.getId() != null) {
-            applicationStatus.setUpdateAt(LocalDateTime.now());
-            repository.updateApplicationStatus(applicationStatus);
-          }
+        ApplicationStatus newStatus = new ApplicationStatus();
+        newStatus.setCourseId(course.getId());
+        newStatus.setStatus("仮申込");
+        newStatus.setCreateAt(LocalDateTime.now());
+        newStatus.setUpdateAt(LocalDateTime.now());
+        repository.registerApplicationStatus(newStatus);
+      } else {
+        // 既存更新（UPDATE）
+        repository.updateStudentCourse(course);
+        ApplicationStatus applicationStatus = course.getApplicationStatus();
+        if (applicationStatus != null && applicationStatus.getId() != null) {
+          applicationStatus.setUpdateAt(LocalDateTime.now());
+          repository.updateApplicationStatus(applicationStatus);
         }
-      });
-    }
+      }
+    });
   }
 
   /**
@@ -172,7 +172,7 @@ public class StudentService {
    * @return 申し込み状況の一覧
    */
   public List<ApplicationStatus> searchApplicationStatusList() {
-    return repository.searchApplicationStatusList();
+    return safeList(repository.searchApplicationStatusList());
   }
 
   /**
@@ -183,5 +183,16 @@ public class StudentService {
    */
   public ApplicationStatus searchApplicationStatus(Integer courseId) {
     return repository.searchApplicationStatus(courseId);
+  }
+
+  /**
+   * 引数に渡されたListがnullの場合に、空のリストを返す防御的なメソッド。
+   *
+   * @param list チェック対象のリスト
+   * @param <T> リストの要素の型
+   * @return nullでないリスト（引数がnullの場合は空のリスト）
+   */
+  private static <T> List<T> safeList(List<T> list) {
+    return list == null ? Collections.emptyList() : list;
   }
 }
