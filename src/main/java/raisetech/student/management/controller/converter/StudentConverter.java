@@ -2,38 +2,52 @@ package raisetech.student.management.controller.converter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
+import raisetech.student.management.data.ApplicationStatus;
 import raisetech.student.management.data.Student;
 import raisetech.student.management.data.StudentCourse;
 import raisetech.student.management.domain.StudentDetail;
 
-/*
-* 受講生詳細を受講生と受講生コース情報、もしくはその逆の変換を行うコンバーターです
-* */
 @Component
 public class StudentConverter {
 
-  /*
-  * 受講生に紐づく受講生コース情報をマッピングする。
-  * 受講生コース情報は受講生に対して複数存在するので、ループをまわして受講生詳細情報を組み立てる。
-  *
-  * @param students 受講生一覧
-  * @param StudentCourses 受講生コース情報のリスト
-  * @return 受講生詳細情報のリスト
-  * */
-  public List<StudentDetail> convertStudentDetails(List<Student> students, List<StudentCourse> studentCours) {
-    List<StudentDetail> studentDetails = new ArrayList<>();
-    students.forEach(student -> {
-      StudentDetail studentDetail = new StudentDetail();
-      studentDetail.setStudent(student);
+    public List<StudentDetail> convertStudentDetails(List<Student> students, List<StudentCourse> studentCourses,
+                                                     List<ApplicationStatus> applicationStatuses) {
+        List<StudentDetail> studentDetails = new ArrayList<>();
 
-      List<StudentCourse> convertStudentCours = studentCours.stream()
-          .filter(studentCourse -> student.getId().equals(studentCourse.getStudentId()))
-          .collect(Collectors.toList());
-      studentDetail.setStudentCourseList(convertStudentCours);
-      studentDetails.add(studentDetail);
-    });
-    return studentDetails;
-  }
+        // 重複する courseId がある場合、最初に見つかった ApplicationStatus を優先 (後のものを破棄) するマージ関数を追加
+        Map<Integer, ApplicationStatus> applicationStatusMap = applicationStatuses.stream()
+                .filter(as -> as.getCourseId() != null)
+                .collect(Collectors.toMap(
+                        ApplicationStatus::getCourseId,
+                        Function.identity(),
+                        (existing, replacement) -> existing // マージ関数: 既存の値を保持
+                ));
+
+        students.forEach(student -> {
+            StudentDetail studentDetail = new StudentDetail();
+            studentDetail.setStudent(student);
+
+            // courseId と applicationIdは 1:1 対応で重複することはないが、念のため重複対応
+            List<StudentCourse> convertStudentCourse = studentCourses.stream()
+                    .filter(studentCourse -> student.getId().equals(studentCourse.getStudentId()))
+                    .map(studentCourse -> {
+                        ApplicationStatus status = applicationStatusMap.get(studentCourse.getId());
+
+                        if (status != null) {
+                            studentCourse.setApplicationStatus(status);
+                        }
+
+                        return studentCourse;
+                    })
+                    .collect(Collectors.toList());
+
+            studentDetail.setStudentCourseList(convertStudentCourse);
+            studentDetails.add(studentDetail);
+        });
+        return studentDetails;
+    }
 }

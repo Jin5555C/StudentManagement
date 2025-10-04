@@ -21,5 +21,4 @@ public class StudentDetail {
 
   @Valid
   private List<StudentCourse> studentCourseList = new ArrayList<>();
-
 }

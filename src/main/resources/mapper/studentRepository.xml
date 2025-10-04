@@ -1,63 +1,136 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="raisetech.student.management.repository.StudentRepository">
 
-  <!--受講生の全件検索-->
+  <sql id="StudentColumns">
+    id,
+    name,
+    kana_name AS kanaName,
+    nickname,
+    email,
+    area,
+    age,
+    sex,
+    remark,
+    is_deleted AS isDeleted
+  </sql>
+
   <select id="search"
           resultType="raisetech.student.management.data.Student">
-
-    SELECT * FROM students
+    SELECT
+    <include refid="StudentColumns" />
+    FROM students
   </select>
 
-  <!--受講生の検索-->
   <select id="searchStudent"
           resultType="raisetech.student.management.data.Student">
-
-    SELECT * FROM students WHERE id = #{id}
+    SELECT
+    <include refid="StudentColumns" />
+    FROM students WHERE id = #{id}
   </select>
 
-  <!--受講生のコース情報の全件検索-->
+  <select id="searchStudentList"
+          parameterType="raisetech.student.management.data.Student"
+          resultType="raisetech.student.management.data.Student">
+
+    SELECT
+    <include refid="StudentColumns" />
+    FROM
+    students
+    <where>
+      <if test="id != null">
+        AND id = #{id}
+      </if>
+      <if test="name != null and name != ''">
+        AND name LIKE CONCAT('%', #{name}, '%')
+      </if>
+      <if test="kanaName != null and kanaName != ''">
+        AND kana_name LIKE CONCAT('%', #{kanaName}, '%')
+      </if>
+      <if test="nickname != null and nickname != ''">
+        AND nickname LIKE CONCAT('%', #{nickname}, '%')
+      </if>
+      <if test="email != null and email != ''">
+        AND email = #{email}
+      </if>
+      <if test="area != null and area != ''">
+        AND area = #{area}
+      </if>
+      <if test="age != null">
+        AND age = #{age}
+      </if>
+      <if test="sex != null and sex != ''">
+        AND sex = #{sex}
+      </if>
+    </where>
+  </select>
+
   <select id="searchStudentCourseList"
           resultType="raisetech.student.management.data.StudentCourse">
 
-    SELECT * FROM students_courses
+    SELECT
+    id,
+    student_id AS studentId,
+    course_name AS courseName,
+    course_start_at AS courseStartAt,
+    course_end_at AS courseEndAt
+    FROM students_courses
   </select>
 
-  <!--受講生のコース情報の全件検索-->
-  <select id="searchStudentCourse" resultType="raisetech.student.management.data.StudentCourse">
-    SELECT * FROM students_courses WHERE student_id = #{student_id}
+  <select id="searchStudentCourse"
+          parameterType="int"
+          resultType="raisetech.student.management.data.StudentCourse">
+
+    SELECT
+    id,
+    student_id AS studentId,
+    course_name AS courseName,
+    course_start_at AS courseStartAt,
+    course_end_at AS courseEndAt
+    FROM students_courses
+    WHERE student_id = #{studentId}
   </select>
 
-  <!--受講生の新規登録-->
+  <select id="searchStudentCoursesByStudentIdList"
+          parameterType="java.util.List"
+          resultType="raisetech.student.management.data.StudentCourse">
+    SELECT
+    id,
+    student_id AS studentId,
+    course_name AS courseName,
+    course_start_at AS courseStartAt,
+    course_end_at AS courseEndAt
+    FROM students_courses
+    WHERE student_id IN
+    <foreach item="studentId" index="index" collection="studentIdList"
+             open="(" separator="," close=")">
+      #{studentId}
+    </foreach>
+  </select>
+
   <insert id="registerStudent"
           parameterType="raisetech.student.management.data.Student"
           useGeneratedKeys="true"
           keyProperty="id">
-
     INSERT INTO students
     (name, kana_name, nickname, email, area, age, sex, remark, is_deleted)
     VALUES
-    (#{name}, #{kanaName}, #{nickname}, #{email}, #{area}, #{age}, #{sex}, #{remark}, false)
+    (#{name}, #{kanaName}, #{nickname}, #{email}, #{area}, #{age}, #{sex}, #{remark}, #{isDeleted})
   </insert>
 
-
-  <!-- 受講生コースを登録 -->
   <insert id="registerStudentCourse"
           parameterType="raisetech.student.management.data.StudentCourse"
           useGeneratedKeys="true"
           keyProperty="id">
-
     INSERT INTO students_courses
     (student_id, course_name, course_start_at, course_end_at)
     VALUES
     (#{studentId}, #{courseName}, #{courseStartAt}, #{courseEndAt})
   </insert>
 
-  <!-- 受講生を更新 -->
   <update id="updateStudent"
           parameterType="raisetech.student.management.data.Student">
-
     UPDATE students
     SET
     name = #{name},
@@ -72,7 +145,6 @@
     WHERE id = #{id}
   </update>
 
-  <!-- 受講生コース情報のコース名を更新 -->
   <update id="updateStudentCourse"
           parameterType="raisetech.student.management.data.StudentCourse">
 
@@ -80,4 +152,46 @@
     SET course_name = #{courseName}
     WHERE id = #{id}
   </update>
+
+  <select id="searchApplicationStatusList" resultType="raisetech.student.management.data.ApplicationStatus">
+    SELECT
+    id,
+    course_id AS courseId,
+    status,
+    create_at AS createAt,
+    update_at AS updateAt
+    FROM application_status
+  </select>
+
+  <select id="searchApplicationStatus"
+          parameterType="int"
+          resultType="raisetech.student.management.data.ApplicationStatus">
+    SELECT
+    id,
+    course_id AS courseId,
+    status,
+    create_at AS createAt,
+    update_at AS updateAt
+    FROM application_status
+    WHERE course_id = #{courseId} </select>
+
+  <insert id="registerApplicationStatus"
+          parameterType="raisetech.student.management.data.ApplicationStatus"
+          useGeneratedKeys="true"
+          keyProperty="id">
+    INSERT INTO application_status
+    (course_id, status, create_at, update_at)
+    VALUES
+    (#{courseId}, #{status}, #{createAt}, #{updateAt})
+  </insert>
+
+  <update id="updateApplicationStatus"
+          parameterType="raisetech.student.management.data.ApplicationStatus">
+    UPDATE application_status
+    SET
+    status = #{status},
+    update_at = #{updateAt}
+    WHERE id = #{id}
+  </update>
+
 </mapper>
