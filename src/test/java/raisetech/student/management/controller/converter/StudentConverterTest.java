@@ -184,4 +184,49 @@ class StudentConverterTest {
     assertNotNull(actualDetails);
     assertTrue(actualDetails.isEmpty(), "結果リストは空のはず");
   }
+
+  @Test
+  void convertStudentDetails_shouldHandleDuplicateCourseIdInApplicationStatuses_byPrioritizingFirstOne() {
+    // テスト対象の受講生
+    Student student1 = new Student();
+    student1.setId(1);
+    student1.setName("重複テスト");
+    student1.setKanaName("チョウフクテスト");
+    student1.setEmail("duplicate@test.com");
+    List<Student> students = List.of(student1);
+
+    // コース情報
+    StudentCourse course1a = new StudentCourse();
+    course1a.setId(101); // courseIdとして重複する値
+    course1a.setStudentId(1);
+    course1a.setCourseName("Java");
+    List<StudentCourse> allCourses = List.of(course1a);
+
+    // 1. 最初の ApplicationStatus (優先されるべきもの)
+    ApplicationStatus statusA = createApplicationStatus(1, "仮申込");
+    statusA.setCourseId(101); // ID: 101
+
+    // 2. 2番目の ApplicationStatus (破棄されるべきもの)
+    ApplicationStatus statusB = createApplicationStatus(2, "受講中");
+    statusB.setCourseId(101); // ID: 101 (重複)
+
+    // リストの順序: statusAが先
+    List<ApplicationStatus> applicationStatuses = List.of(statusA, statusB);
+
+    List<StudentDetail> actualDetails = sut.convertStudentDetails(students, allCourses, applicationStatuses);
+
+    // 検証
+    assertEquals(1, actualDetails.size());
+    StudentDetail detail = actualDetails.get(0);
+    assertEquals(1, detail.getStudentCourseList().size());
+
+    StudentCourse actualCourse = detail.getStudentCourseList().get(0);
+    assertNotNull(actualCourse.getApplicationStatus(), "ApplicationStatusがセットされている");
+
+    // マージ関数 (existing, replacement) -> existing により、最初に見つかった statusA が優先される
+    assertEquals("仮申込", actualCourse.getApplicationStatus().getStatus(),
+            "重複する ApplicationStatus のうち、最初に見つかった '仮申込' が適用されるべき");
+    assertEquals(1, actualCourse.getApplicationStatus().getId(),
+            "適用された ApplicationStatus は ID=1 のものであるべき");
+  }
 }

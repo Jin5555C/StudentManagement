@@ -100,10 +100,10 @@ public interface StudentRepository {
   /**
    * IDに紐づくコースの申し込み状況を取得します。
    *
-   * @param id 申し込み状況ID (またはコースID。Mapperの定義に依存)
+   * @param courseId 申し込み状況ID (またはコースID。Mapperの定義に依存)
    * @return 申し込み状況
    */
-  ApplicationStatus searchApplicationStatus(Integer id);
+  ApplicationStatus searchApplicationStatus(Integer courseId);
 
   /**
    * コースの申し込み状況を新規登録します。

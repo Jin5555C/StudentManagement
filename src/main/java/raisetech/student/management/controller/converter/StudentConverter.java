@@ -18,15 +18,20 @@ public class StudentConverter {
                                                      List<ApplicationStatus> applicationStatuses) {
         List<StudentDetail> studentDetails = new ArrayList<>();
 
+        // 重複する courseId がある場合、最初に見つかった ApplicationStatus を優先 (後のものを破棄) するマージ関数を追加
         Map<Integer, ApplicationStatus> applicationStatusMap = applicationStatuses.stream()
                 .filter(as -> as.getCourseId() != null)
-                .collect(Collectors.toMap(ApplicationStatus::getCourseId, Function.identity()));
+                .collect(Collectors.toMap(
+                        ApplicationStatus::getCourseId,
+                        Function.identity(),
+                        (existing, replacement) -> existing // マージ関数: 既存の値を保持
+                ));
 
         students.forEach(student -> {
             StudentDetail studentDetail = new StudentDetail();
             studentDetail.setStudent(student);
 
-            // courseId と applicationIdは 1:1 対応で重複することはない。
+            // courseId と applicationIdは 1:1 対応で重複することはないが、念のため重複対応
             List<StudentCourse> convertStudentCourse = studentCourses.stream()
                     .filter(studentCourse -> student.getId().equals(studentCourse.getStudentId()))
                     .map(studentCourse -> {
